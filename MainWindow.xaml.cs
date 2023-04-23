@@ -155,6 +155,8 @@ namespace MakeNSWSD
         private void StartBtn_Click(object sender, RoutedEventArgs e)
         {
             LogWindow logWindow = new LogWindow(outFolderTxt.Text, _checks);
+            // Attach to main window as a child
+            logWindow.Owner = this;
             logWindow.ShowDialog();
         }
 

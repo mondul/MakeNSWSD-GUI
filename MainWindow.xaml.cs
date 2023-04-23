@@ -150,8 +150,6 @@ namespace MakeNSWSD
             };
 
             outFolderTxt.Text = folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK ? folderDialog.SelectedPath : _defaultFolder;
-
-            EnableStartBtn();
         }
 
         private void StartBtn_Click(object sender, RoutedEventArgs e)

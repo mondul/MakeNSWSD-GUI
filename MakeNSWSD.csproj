@@ -80,6 +80,9 @@
     <Compile Include="LogWindow.DownloadFile.cs">
       <DependentUpon>LogWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="LogWindow.ExtractBootLogo.cs">
+      <DependentUpon>LogWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="LogWindow.ExtractZip.cs">
       <DependentUpon>LogWindow.xaml</DependentUpon>
     </Compile>

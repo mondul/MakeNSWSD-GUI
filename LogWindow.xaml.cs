@@ -141,6 +141,16 @@ namespace MakeNSWSD
                     {
                         logTxt.AppendText($"\r\n! Ban prevention files creation error: {banEx.Message}\r\n\r\n");
                     }
+
+                    // Do not fail if boot logo extraction fails
+                    try
+                    {
+                        ExtractBootLogo();
+                    }
+                    catch (Exception zipEx)
+                    {
+                        logTxt.AppendText($"\r\n! Boot logo extraction error: {zipEx.Message}\r\n\r\n");
+                    }
                 }
 
                 if (_doHekate)

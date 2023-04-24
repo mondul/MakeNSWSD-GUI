@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -46,6 +46,11 @@ namespace MakeNSWSD
             ContentRendered += LogWindow_ContentRendered;
         }
 
+        /// <summary>
+        /// Process all after the window's content has been rendered
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void LogWindow_ContentRendered(object sender, EventArgs e)
         {
             // Unset the event to avoid refiring
@@ -125,7 +130,7 @@ namespace MakeNSWSD
 
                 if (_doAtmosphere)
                 {
-                    ExtractZip(atmosphereZipFile, null);
+                    ExtractZip(atmosphereZipFile);
 
                     // Do not fail if ban prevention files creation fails
                     try
@@ -148,7 +153,7 @@ namespace MakeNSWSD
                     // Do not fail if SPs extraction fails
                     try
                     {
-                        ExtractZip(spsZipFile, null);
+                        ExtractZip(spsZipFile);
                     }
                     catch (Exception zipEx)
                     {
@@ -217,7 +222,10 @@ namespace MakeNSWSD
             }
         }
 
-        // Warn on close if the helper process is running
+        /// <summary>
+        /// Warn on close if the helper process is running
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnClosing(CancelEventArgs e)
         {
             if (_done)

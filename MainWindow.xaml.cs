@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -105,6 +105,11 @@ namespace MakeNSWSD
             Loaded += MainWindow_Loaded;
         }
 
+        /// <summary>
+        /// Insert the "About..." menu item in the context menu
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             // Unset the event to avoid refiring
@@ -123,6 +128,16 @@ namespace MakeNSWSD
             hwndSource.AddHook(new HwndSourceHook(WndProc));
         }
 
+        /// <summary>
+        /// Method added to the window's event loop, checks if the About menu
+        /// entry was clicked
+        /// </summary>
+        /// <param name="hwnd"></param>
+        /// <param name="msg"></param>
+        /// <param name="wParam"></param>
+        /// <param name="lParam"></param>
+        /// <param name="handled"></param>
+        /// <returns>0</returns>
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             // Check if the SystemCommand message has been executed

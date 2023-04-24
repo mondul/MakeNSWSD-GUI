@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -11,7 +11,9 @@ namespace MakeNSWSD
 {
     public partial class LogWindow : Window
     {
-
+        /// <summary>
+        /// Compressed contents of exosphere.ini
+        /// </summary>
         private static readonly byte[] compressedExo = new byte[] {
             0x64, 0x8B, 0xC1, 0x6A, 0xC6, 0x20, 0x10, 0x84,
             0xEF, 0x3E, 0x8D, 0x16, 0x7A, 0xF4, 0x49, 0x4A,
@@ -33,6 +35,9 @@ namespace MakeNSWSD
             0x92, 0xB7, 0x7F, 0x01, 0x00, 0x00, 0xFF, 0xFF,
         };
 
+        /// <summary>
+        /// Compressed contents of atmosphere\hosts\default.txt
+        /// </summary>
         private static readonly byte[] compressedHosts = new byte[] {
             0x6C, 0xCA, 0x41, 0x0A, 0xC2, 0x30, 0x10, 0x46,
             0xE1, 0x7D, 0x4F, 0x31, 0xE0, 0x2E, 0xE0, 0x4F,
@@ -51,6 +56,9 @@ namespace MakeNSWSD
             0x00, 0xFF, 0xFF,
         };
 
+        /// <summary>
+        /// Method to create ban prevention files
+        /// </summary>
         private void BanPrevention()
         {
             logTxt.AppendText("Creating ban prevention files... ");

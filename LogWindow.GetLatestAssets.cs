@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,14 +31,12 @@ namespace MakeNSWSD
             internal Asset[] assets;
         }
 
-        /**
-         * Gets info on a GitHub's repo latest release
-         *
-         * @param string repo  Must be formatted as {author}/{repo}
-         * @param Regex  regex Download only assets that matches with this filter
-         *
-         * @return string[]
-         */
+        /// <summary>
+        /// Gets info on a GitHub's repo latest release and downloads its assets
+        /// </summary>
+        /// <param name="repo">Must be formatted as {author}/{repo}</param>
+        /// <param name="filterRegex">Download only assets that matches with this filter</param>
+        /// <returns>Array of the downloaded assets file paths</returns>
         private async Task<string[]> GetLatestAssets(string repo, Regex filterRegex)
         {
             Release release = new Release();

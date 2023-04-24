@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
@@ -23,6 +23,10 @@ namespace MakeNSWSD
             0x7B, 0xAC, 0x7E, 0x05, 0x00, 0x00, 0xFF, 0xFF,
         };
 
+        /// <summary>
+        /// Downloads the latest SPs from the forum post
+        /// </summary>
+        /// <returns>The downloaded .zip path</returns>
         private async Task<string> GetLatestSPs()
         {
             MemoryStream input = new MemoryStream(compressedForumURL);

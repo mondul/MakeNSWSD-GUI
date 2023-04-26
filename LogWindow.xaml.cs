@@ -42,6 +42,8 @@ namespace MakeNSWSD
 
             // Open window
             InitializeComponent();
+            // Attach to main window as a child
+            Owner = App.Current.MainWindow;
             // Add event after the window content is rendered
             ContentRendered += LogWindow_ContentRendered;
         }
@@ -240,7 +242,7 @@ namespace MakeNSWSD
         {
             if (_done)
             {
-                Owner.Close();
+                Environment.Exit(0);
                 return;
             }
 

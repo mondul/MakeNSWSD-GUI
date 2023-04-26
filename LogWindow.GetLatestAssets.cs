@@ -13,6 +13,7 @@ namespace MakeNSWSD
 {
     public partial class LogWindow : Window
     {
+        #pragma warning disable CS0649
         // Internal classes for JSON parsing
         [DataContract]
         internal class Asset
@@ -30,6 +31,7 @@ namespace MakeNSWSD
             [DataMember]
             internal Asset[] assets;
         }
+        #pragma warning restore CS0649
 
         /// <summary>
         /// Gets info on a GitHub's repo latest release and downloads its assets

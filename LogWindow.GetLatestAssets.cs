@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
@@ -65,23 +63,7 @@ namespace MakeNSWSD
                 // Download files that matches the filter regex
                 if (filterRegex.IsMatch(asset.browserDownloadURL))
                 {
-                    Uri uri = new Uri(asset.browserDownloadURL);
-                    string fileName = Uri.UnescapeDataString(uri.Segments.Last());
-                    string filePath = Path.Combine(_workDir, fileName);
-
-                    // Check if file exists
-                    if (File.Exists(filePath))
-                    {
-                        logTxt.AppendText($"- {fileName} already exists\r\n");
-                    }
-                    else
-                    {
-                        logTxt.AppendText($"Downloading {fileName}... ");
-                        await DownloadFile(uri, filePath);
-                        logTxt.AppendText("Done\r\n");
-                    }
-
-                    downloadedFiles.Add(filePath);
+                    downloadedFiles.Add(await DownloadFile(asset.browserDownloadURL));
                 }
             }
 

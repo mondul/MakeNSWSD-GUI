@@ -1,8 +1,10 @@
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
@@ -20,6 +22,12 @@ namespace MakeNSWSD
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         private readonly string _outDir;
+        private static readonly byte[] compressedLockpickRepo = new byte[] {
+            0x0A, 0xCE, 0xC9, 0x29, 0xAD, 0xA8, 0xD0, 0x0F,
+            0xC8, 0x4C, 0xCE, 0xCE, 0xC9, 0x4F, 0xCE, 0x8E,
+            0x0F, 0x72, 0xF6, 0x05, 0x04, 0x00, 0x00, 0xFF,
+            0xFF,
+        };
 
         private readonly bool _doAtmosphere;
         private readonly bool _doHekate;
@@ -107,7 +115,14 @@ namespace MakeNSWSD
                         // Do not fail if Lockpick_RCM download fails
                         try
                         {
-                            assets = await GetLatestAssets("shchmue/Lockpick_RCM", new Regex(@"\.bin$"));
+                            MemoryStream input = new MemoryStream(compressedLockpickRepo);
+                            MemoryStream output = new MemoryStream();
+                            using (DeflateStream dstream = new DeflateStream(input, CompressionMode.Decompress))
+                            {
+                                dstream.CopyTo(output);
+                            }
+
+                            assets = await GetLatestAssets(Encoding.UTF8.GetString(output.ToArray()), new Regex(@"\.bin$"));
                             lockpickBinFile = assets.FirstOrDefault();
                         }
                         catch (Exception binEx)

@@ -24,8 +24,10 @@ namespace MakeNSWSD
         private readonly bool _doAtmosphere;
         private readonly bool _doHekate;
         private readonly bool _doSPs;
-        private readonly bool _doLockpick;
         private readonly bool _doDBI;
+        private readonly bool _doPayloadBin;
+        private readonly bool _doBootDat;
+        private readonly bool _doLockpick;
 
         public LogWindow(string outDir, byte checks)
         {
@@ -34,11 +36,13 @@ namespace MakeNSWSD
 
             _outDir = outDir;
 
-            _doAtmosphere = (checks & 0x10) != 0;
-            _doHekate = (checks & 0x8) != 0;
+            _doAtmosphere = (checks & 0x1) != 0;
+            _doHekate = (checks & 0x2) != 0;
             _doSPs = (checks & 0x4) != 0;
-            _doLockpick = (checks & 0x2) != 0;
-            _doDBI = (checks & 0x1) != 0;
+            _doDBI = (checks & 0x8) != 0;
+            _doPayloadBin = (checks & 0x10) != 0;
+            _doBootDat = (checks & 0x20) != 0;
+            _doLockpick = (checks & 0x40) != 0;
 
             // Open window
             InitializeComponent();
@@ -62,8 +66,10 @@ namespace MakeNSWSD
             string atmosphereZipFile = string.Empty;
             string hekateZipFile = string.Empty;
             string spsZipFile = string.Empty;
-            string lockpickBinFile = string.Empty;
             string[] dbiBinFiles = {};
+
+            string bootDatZipFile = string.Empty;
+            string lockpickBinFile = string.Empty;
 
             try
             {
@@ -82,6 +88,33 @@ namespace MakeNSWSD
                 {
                     string[] assets = await GetLatestAssets("CTCaer/hekate", new Regex(@"hekate_ctcaer.+\.zip$"));
                     hekateZipFile = assets.FirstOrDefault();
+
+                    if (_doBootDat)
+                    {
+                        // Do not fail if SX Gear boot files download fails
+                        try
+                        {
+                            bootDatZipFile = await DownloadFile("https://raw.githubusercontent.com/mondul/MakeNSWSD-GUI/main/sxgearboot.zip");
+                        }
+                        catch (Exception sxEx)
+                        {
+                            logTxt.AppendText($"\r\n! SX Gear boot files download error: {sxEx.Message}\r\n\r\n");
+                        }
+                    }
+
+                    if (_doLockpick)
+                    {
+                        // Do not fail if Lockpick_RCM download fails
+                        try
+                        {
+                            assets = await GetLatestAssets("shchmue/Lockpick_RCM", new Regex(@"\.bin$"));
+                            lockpickBinFile = assets.FirstOrDefault();
+                        }
+                        catch (Exception binEx)
+                        {
+                            logTxt.AppendText($"\r\n! Lockpick_RCM download error: {binEx.Message}\r\n\r\n");
+                        }
+                    }
                 }
 
                 if (_doSPs)
@@ -94,20 +127,6 @@ namespace MakeNSWSD
                     catch (Exception zipEx)
                     {
                         logTxt.AppendText($"\r\n! SPs download error: {zipEx.Message}\r\n\r\n");
-                    }
-                }
-
-                if (_doLockpick)
-                {
-                    // Do not fail if Lockpick_RCM download fails
-                    try
-                    {
-                        string[] assets = await GetLatestAssets("shchmue/Lockpick_RCM", new Regex(@"\.bin$"));
-                        lockpickBinFile = assets.FirstOrDefault();
-                    }
-                    catch (Exception binEx)
-                    {
-                        logTxt.AppendText($"\r\n! Lockpick_RCM download error: {binEx.Message}\r\n\r\n");
                     }
                 }
 
@@ -157,10 +176,57 @@ namespace MakeNSWSD
 
                 if (_doHekate)
                 {
-                    ExtractZip(hekateZipFile, new Regex(@"^hekate_ctcaer_.+\.bin$"));
+                    ExtractZip(hekateZipFile, _doPayloadBin ? null : new Regex(@"^hekate_ctcaer_.+\.bin$"));
+
+                    if (_doPayloadBin)
+                    {
+                        logTxt.AppendText("Renaming Hekate payload... ");
+                        // Do not fail if renaming Hekate payload fails
+                        try
+                        {
+                            File.Move(
+                                Directory.GetFiles(_outDir, "hekate_ctcaer_*.bin", SearchOption.TopDirectoryOnly)[0],
+                                Path.Combine(_outDir, "payload.bin")
+                            );
+                            logTxt.AppendText("Done\r\n\r\n");
+                        }
+                        catch (Exception renEx)
+                        {
+                            logTxt.AppendText($"\r\n! payload.bin renaming error: {renEx.Message}\r\n\r\n");
+                        }
+                    }
+                    else if (_doBootDat)
+                    {
+                        // Do not fail if SX Gear boot files extraction fails
+                        try
+                        {
+                            ExtractZip(bootDatZipFile);
+                        }
+                        catch (Exception zipEx)
+                        {
+                            logTxt.AppendText($"\r\n! SX Gear boot files extraction error: {zipEx.Message}\r\n\r\n");
+                        }
+                    }
+
+                    if (_doLockpick && lockpickBinFile.Length > 0)
+                    {
+                        logTxt.AppendText("Moving Lockpick_RCM to payloads... ");
+                        // Do not fail if moving Lockpick_RCM.bin fails
+                        try
+                        {
+                            string destFile = Path.Combine(_outDir, "bootloader", "payloads", lockpickBinFile.Substring(8));
+                            File.Move(lockpickBinFile, destFile);
+
+                            logTxt.AppendText("Done\r\n\r\n");
+                        }
+                        catch (Exception binEx)
+                        {
+                            logTxt.AppendText($"\r\n! Lockpick move error: {binEx.Message}\r\n\r\n");
+                        }
+                    }
                 }
 
-                if (_doSPs)
+                if (_doSPs && spsZipFile.Length > 0)
                 {
                     // Do not fail if SPs extraction fails
                     try
@@ -173,24 +239,7 @@ namespace MakeNSWSD
                     }
                 }
 
-                if (_doLockpick)
-                {
-                    logTxt.AppendText("Moving Lockpick_RCM to payloads... ");
-                    // Do not fail if moving Lockpick_RCM.bin fails
-                    try
-                    {
-                        string destFile = Path.Combine(_outDir, "bootloader", "payloads", lockpickBinFile.Substring(8));
-                        File.Move(lockpickBinFile, destFile);
-
-                        logTxt.AppendText("Done\r\n\r\n");
-                    }
-                    catch (Exception binEx)
-                    {
-                        logTxt.AppendText($"\r\n! Lockpick move error: {binEx.Message}\r\n\r\n");
-                    }
-                }
-
-                if (_doDBI)
+                if (_doDBI && dbiBinFiles.Length > 0)
                 {
                     logTxt.AppendText("Moving DBI files... ");
                     // Do not fail if moving DBI files fails

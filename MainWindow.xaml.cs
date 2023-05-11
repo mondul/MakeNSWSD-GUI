@@ -36,27 +36,32 @@ namespace MakeNSWSD
 
         #region ForChecks
 
-        private byte _checks = 0x1C;
+        private byte _checks = 0x7;
 
         private void EnableStartBtn()
         {
-            startBtn.IsEnabled = _checks != 0;
+            startBtn.IsEnabled = (_checks & 0xF) != 0;
         }
 
         public bool AtmosphereCheck
         {
-            get { return (_checks & 0x10) != 0; }
-            set {
-                _checks = (byte)(value ? (_checks | 0x10) : (_checks & 0xF));
+            get { return (_checks & 0x1) != 0; }
+            set
+            {
+                _checks = (byte)(value ? (_checks | 0x1) : (_checks & 0x7E));
                 EnableStartBtn();
             }
         }
 
         public bool HekateCheck
         {
-            get { return (_checks & 0x8) != 0; }
-            set {
-                _checks = (byte)(value ? (_checks | 0x8) : (_checks & 0x17));
+            get { return (_checks & 0x2) != 0; }
+            set
+            {
+                _checks = (byte)(value ? (_checks | 0x2) : (_checks & 0x7D));
+                payloadBinChk.IsEnabled = value;
+                bootDatChk.IsEnabled = value;
+                lockpickChk.IsEnabled = value;
                 EnableStartBtn();
             }
         }
@@ -64,28 +69,61 @@ namespace MakeNSWSD
         public bool SPsCheck
         {
             get { return (_checks & 0x4) != 0; }
-            set {
-                _checks = (byte)(value ? (_checks | 0x4) : (_checks & 0x1B));
-                EnableStartBtn();
-            }
-        }
-
-        public bool LockpickCheck
-        {
-            get { return (_checks & 0x2) != 0; }
-            set {
-                _checks = (byte)(value ? (_checks | 0x2) : (_checks & 0x1D));
+            set
+            {
+                _checks = (byte)(value ? (_checks | 0x4) : (_checks & 0x7B));
                 EnableStartBtn();
             }
         }
 
         public bool DBICheck
         {
-            get { return (_checks & 0x1) != 0; }
-            set {
-                _checks = (byte)(value ? (_checks | 0x1) : (_checks & 0x1E));
+            get { return (_checks & 0x8) != 0; }
+            set
+            {
+                _checks = (byte)(value ? (_checks | 0x8) : (_checks & 0x77));
                 EnableStartBtn();
             }
+        }
+
+        public bool PayloadBinCheck
+        {
+            get { return (_checks & 0x10) != 0; }
+            set
+            {
+                if (value)
+                {
+                    _checks = (byte)(_checks | 0x10);
+                    bootDatChk.IsChecked = false; // Triggers BootDatCheck's else
+                }
+                else
+                {
+                    _checks = (byte)(_checks & 0x6F);
+                }
+            }
+        }
+
+        public bool BootDatCheck
+        {
+            get { return (_checks & 0x20) != 0; }
+            set
+            {
+                if (value)
+                {
+                    _checks = (byte)(_checks | 0x20);
+                    payloadBinChk.IsChecked = false; // Triggers PayloadBinCheck's else
+                }
+                else
+                {
+                    _checks = (byte)(_checks & 0x5F);
+                }
+            }
+        }
+
+        public bool LockpickCheck
+        {
+            get { return (_checks & 0x40) != 0; }
+            set { _checks = (byte)(value ? (_checks | 0x40) : (_checks & 0x3F)); }
         }
 
         #endregion

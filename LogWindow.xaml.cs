@@ -103,6 +103,7 @@ namespace MakeNSWSD
                         try
                         {
                             bootDatZipFile = await DownloadFile("https://raw.githubusercontent.com/mondul/MakeNSWSD-GUI/main/sxgearboot.zip");
+                            logTxt.AppendText("\r\n");
                         }
                         catch (Exception sxEx)
                         {
